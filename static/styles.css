@@ -1,0 +1,33 @@
+#todo-header {
+  font-size: 20px;
+  font-weight: bolder;
+  padding: 15px;
+  border-bottom: 2px solid crimson;
+}
+
+#todos {
+  max-height: 80vh;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+.todo-item {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.todo-item:nth-of-type(odd) {
+  background-color: aliceblue;
+}
+
+#todo-form {
+  padding: 10px;
+  background-color: #eee;
+  border-radius: 10px;
+  border: 1px solid #031633;
+  box-shadow: 0 0 .8em #031633;
+}
+
+.container {
+  padding-top: 20px !important;
+}
