@@ -29,15 +29,6 @@ def index():
 
   query = db.select(Todos)
   todos = db.session.execute(query).scalars().all()
-  # print(todos)
-  # todos.map(lambda todo:
-  #           f"""
-  #   <tr>
-  #     <th scope="row"> {todo.title} </th>
-  #     <td> {todo.details} </td>
-  #   </tr> """)
-
-  # todos.join("")
 
   return render_template("index.html", todos=todos)
 
@@ -55,9 +46,6 @@ def add():
   # print(request.form)
   return f"""
       <div class="row todo-item" data-todo-id='{todo.id}'>
-        <div class="col-1 d-flex justify-content-center">
-          <input value={todo.id} type="checkbox" name="complete" hx-post="/complete" hx-target=".todo-item closest" hx-swap="innerHTML">
-        </div>
         <div class="col-3 d-flex justify-content-center">
           <b>{ todo.title }</b>
         </div>
@@ -65,6 +53,9 @@ def add():
           { todo.details }
         </div>
         <div class="col-2 d-flex justify-content-center">
+          <button class="btn btn-success" value={todo.id} type="submit" name="complete" hx-post="/complete" hx-target="closest .todo-item" hx-swap="innerHTML">
+            Complete
+          </button>
           <button class="btn btn-danger"> Remove </button>
         </div>
       </div>      """
@@ -72,49 +63,49 @@ def add():
 
 @app.route("/complete", methods=["POST"])
 def mark_complete():
+
+  # Update todo in db
   todo_id = request.form.get("complete")
-  print(f"todo id: {todo_id}")
   todo = db.session.execute(db.select(Todos).where(Todos.id==todo_id)).scalar()
-  print(f"todo complete pre-update: {todo.complete}")
   todo.complete = not todo.complete
   db.session.commit()
-  print(f"todo complete post-update: {todo.complete}")
-  print(f"todo complete post-update: {todo.complete}")
 
-  print(f"todo id: {todo.id}")
-  print("---")
-  # check = db.session.execute(db.select(Todos).where(Todos.id==todo_id)).scalar()
+  # Send back appropriate HTML element
   if todo.complete:
     return f"""
-        <div class="row todo-item" data-todo-id={todo.id}>
-          <div class="col-1 d-flex justify-content-center">
-            <input value={todo.id} type="checkbox" name="complete" hx-trigger="click" hx-post="/complete" hx-target="closest .todo-item" hx-swap="outerHTML" checked>
-          </div>
+        <div class="row todo-item todo-complete" data-todo-id="1">
           <div class="col-3 d-flex justify-content-center">
-            <b> { todo.title } </b>
+            <b> {todo.title} </b>
           </div>
           <div class="col-6 d-flex justify-content-center">
-            { todo.details }
+            <p> {todo.details} </p>
           </div>
           <div class="col-2 d-flex justify-content-center">
-            <button class="btn btn-danger"> Remove </button>
+            <div class="button-container">
+              <button class="btn btn-warning" value={todo.id} type="submit" name="complete" hx-post="/complete" hx-target="closest .todo-item" hx-swap="outerHTML">
+                Uncomplete
+              </button>
+              <button class="btn btn-danger"> Remove </button>
+            </div>
           </div>
         </div>
   """
   else:
     return f"""
-        <div class="row todo-item" data-todo-id={todo.id}>
-          <div class="col-1 d-flex justify-content-center">
-            <input value={todo.id} type="checkbox" name="complete" hx-trigger="click" hx-post="/complete" hx-target="closest .todo-item" hx-swap="outerHTML">
-          </div>
+        <div class="row todo-item" data-todo-id="1">
           <div class="col-3 d-flex justify-content-center">
-            <b> { todo.title } </b>
+            <b> {todo.title} </b>
           </div>
           <div class="col-6 d-flex justify-content-center">
-            { todo.details }
+            <p> {todo.details} </p>
           </div>
           <div class="col-2 d-flex justify-content-center">
-            <button class="btn btn-danger"> Remove </button>
+            <div class="button-container">
+              <button class="btn btn-success" value={todo.id} type="submit" name="complete" hx-post="/complete" hx-target="closest .todo-item" hx-swap="outerHTML">
+                Complete
+              </button>
+              <button class="btn btn-danger"> Remove </button>
+            </div>
           </div>
         </div>
   """
