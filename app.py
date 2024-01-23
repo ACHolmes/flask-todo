@@ -6,6 +6,9 @@ from sqlalchemy.orm import load_only
 
 from models import db, init_app, Todos
 
+# Helper functions to render a complete or incomplete todo, kinda using these as 'components' a la React in a sense.
+from renders import render_complete_todo, render_incomplete_todo
+
 # Flask app
 app = Flask(__name__)
 
@@ -27,38 +30,28 @@ with app.app_context():
 @app.route("/", methods=["GET"])
 def index():
 
-  query = db.select(Todos)
-  todos = db.session.execute(query).scalars().all()
+  # Get all the todos currently
+  todos = db.session.execute(db.select(Todos)).scalars().all()
 
+  # Use them to render template
   return render_template("index.html", todos=todos)
 
 @app.route("/add", methods=["POST"])
 def add():
 
+  # Create new todo
   todo = Todos (
     title = request.form.get("title"),
     details = request.form.get("details"),
     complete = False
   )
 
+  # Add to session and commit
   db.session.add(todo)
   db.session.commit()
-  # print(request.form)
-  return f"""
-      <div class="row todo-item" data-todo-id='{todo.id}'>
-        <div class="col-3 d-flex justify-content-center">
-          <b>{ todo.title }</b>
-        </div>
-        <div class="col-6 d-flex justify-content-center">
-          { todo.details }
-        </div>
-        <div class="col-2 d-flex justify-content-center">
-          <button class="btn btn-success" value={todo.id} type="submit" name="complete" hx-post="/complete" hx-target="closest .todo-item" hx-swap="innerHTML">
-            Complete
-          </button>
-          <button class="btn btn-danger"> Remove </button>
-        </div>
-      </div>      """
+
+  # Send back resulting todo item
+  return render_incomplete_todo(todo)
 
 
 @app.route("/complete", methods=["POST"])
@@ -72,40 +65,21 @@ def mark_complete():
 
   # Send back appropriate HTML element
   if todo.complete:
-    return f"""
-        <div class="row todo-item todo-complete" data-todo-id="1">
-          <div class="col-3 d-flex justify-content-center">
-            <b> {todo.title} </b>
-          </div>
-          <div class="col-6 d-flex justify-content-center">
-            <p> {todo.details} </p>
-          </div>
-          <div class="col-2 d-flex justify-content-center">
-            <div class="button-container">
-              <button class="btn btn-warning" value={todo.id} type="submit" name="complete" hx-post="/complete" hx-target="closest .todo-item" hx-swap="outerHTML">
-                Uncomplete
-              </button>
-              <button class="btn btn-danger"> Remove </button>
-            </div>
-          </div>
-        </div>
-  """
+    return render_complete_todo(todo)
   else:
-    return f"""
-        <div class="row todo-item" data-todo-id="1">
-          <div class="col-3 d-flex justify-content-center">
-            <b> {todo.title} </b>
-          </div>
-          <div class="col-6 d-flex justify-content-center">
-            <p> {todo.details} </p>
-          </div>
-          <div class="col-2 d-flex justify-content-center">
-            <div class="button-container">
-              <button class="btn btn-success" value={todo.id} type="submit" name="complete" hx-post="/complete" hx-target="closest .todo-item" hx-swap="outerHTML">
-                Complete
-              </button>
-              <button class="btn btn-danger"> Remove </button>
-            </div>
-          </div>
-        </div>
-  """
+    return render_incomplete_todo(todo)
+
+@app.route("/remove", methods=["POST"])
+def remove():
+
+  # Get the id of the todo to remove from the button and delete
+  todo_id = request.form.get("remove")
+  todo = db.session.execute(db.select(Todos).where(Todos.id==todo_id)).scalar()
+  db.session.delete(todo)
+  db.session.commit()
+
+  # Send back an empty string to replace the element.
+  # NOTE: Could just use the hx-delete route and ignore returning anything, this is mostly just to allow error checking (which I'm not currently doing,
+  # but in case I checked the transaction worked fine, otherwise I guess I would return back the same element to replace itself with itself, which
+  # seems kinda scuffed but I don't know how else this works in HTMX, first time ever using it).
+  return ""
