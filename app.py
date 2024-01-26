@@ -27,6 +27,9 @@ Migrate(app, db, compare_type=True)
 with app.app_context():
   upgrade()
 
+# Here's the route concept! The homepage should only take a 'GET' request
+# and just display the content, while the others are mostly 'POST' requests
+# to handle sending data to the server.
 @app.route("/", methods=["GET"])
 def index():
 
