@@ -164,6 +164,8 @@ Here's a quick show of an example of props perhaps being useful, again in the co
 
 I implemented a todo app using Flask and HTMX, you can view my [repository here](https://github.com/ACHolmes/flask-todo). I didn't use the tutorial, as per the next question, I have some experience in Flask and wanted to do this by myself as a way of learning HTMX, which I've never used. I have a working TODO app, with the capability to add, delete or mark todos as complete. Credits for resources I used beneath the concepts.
 
+![Screenshot of my todo app](./todo_app_demo.jpg "My Todo App Screenshot")
+
 #### Concepts
 
 1. Flask has the `template` concept, allowing for service of static or non-static pages via `render_template`. A template in turn consists of a combination of smaller concepts that `render_template` uses to construct a full webpage. Their purpose is to extend flask's ability to display content beyond (but still including) static pages, such that you can render information conditionally based on information from a database, session cookies, the current time or other similar information that can bring dynamic elements to a webpage (although note that I would distinguish these as 'dynamic' but not generally 'reactive' elements like in Svelte, as really this concept helps the first generation of the webpage, but does little to enhance the page upon interactions with the UI, unless they cause a redirect to another route, or there is javascript to add reactivity on top, which isn't Flask specific).
